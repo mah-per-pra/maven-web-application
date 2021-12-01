@@ -1,0 +1,28 @@
+node{
+    def mavenhome = tool name: "maven3.8.4"
+    properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '5')), [$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false], [$class: 'JobLocalConfiguration', changeReasonComment: '']])    
+    stage('Checkoutcode'){
+        git branch: 'development', credentialsId: '6675c077-07c3-4d5c-bd93-e1d8c1845705', url: 'https://github.com/mah-per-pra/maven-web-application.git'
+    }
+    stage('Build'){
+        sh "${mavenhome}/bin/mvn clean package"
+    }
+    stage('Executesonarreport'){
+        sh "${mavenhome}/bin/mvn clean package sonar:sonar"
+    }
+    stage('uploadtonexus'){
+        sh "${mavenhome}/bin/mvn clean package sonar:sonar deploy"
+    }
+    stage('deployappintotomcat'){
+        sshagent(['d1700553-95cc-4bf8-becd-ce8cbcb84273']) {
+    // some block
+    sh "scp -o  StrictHostKeyChecking=no target/maven-web-application.war ec2-user@3.110.216.161:/opt/apache-tomcat-9.0.54/webapps"
+
+}
+    
+}
+stage('Sendemail'){
+    emailext body: 'build', subject: 'build', to: 'mahitha2899@gmail.com'
+    
+}
+}
