@@ -5,6 +5,10 @@ pipeline{
     }
     parameters {
   choice choices: ['development', 'master', 'stage'], name: 'Branchname'
+  
+}
+parameters {
+  choice choices: ['development', 'master'], name: 'Branchname'
 }
 
     stages{
