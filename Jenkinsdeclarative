@@ -1,0 +1,65 @@
+pipeline{
+    agent any
+    tools{
+        maven 'maven3.8.4'
+    }
+    parameters {
+  choice choices: ['development', 'master', 'stage'], name: 'Branchname'
+}
+
+    stages{
+        stage('checkoutcode'){
+        steps{
+            git branch: '${Branchname}', credentialsId: 'c1403be4-4657-4885-bd00-93aaef407cd2', url: 'https://github.com/mah-per-pra/maven-web-application.git'
+    }
+}
+
+          stage('build'){
+             steps{
+                sh "mvn clean package"
+    }
+}
+stage('sonarqube'){
+    steps{
+        sh "mvn sonar:sonar"
+    }
+}
+stage('upload'){
+    steps{
+        sh "mvn deploy"
+    }
+}
+stage('deploy'){
+    steps{
+        sshagent(['d1700553-95cc-4bf8-becd-ce8cbcb84273']) {
+    // some block
+    sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@3.110.213.219:/opt/apache-tomcat-9.0.54/webapps"
+}
+    }
+}
+
+}
+post {
+  always {
+    
+emailext body: '''Buildover
+
+Regards
+Mahitha''', subject: 'Buildover', to: 'mahitha2899@gmail.com'
+  }
+  success {
+    
+emailext body: '''Buildsucess
+
+Regards
+Mahitha''', subject: 'Buildsucess', to: 'mahitha2899@gmail.com'
+  }
+  failure {
+    
+emailext body: '''Buildfail
+
+Regards
+Mahitha''', subject: 'Buildfail', to: 'mahitha2899@gmail.com'
+  }
+}
+}
