@@ -1,4 +1,4 @@
-node{
+node('node-wallmart'){
     def mavenhome = tool name: "maven3.8.4"
     properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '5')), [$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false], [$class: 'JobLocalConfiguration', changeReasonComment: '']])    
     stage('Checkoutcode'){
@@ -7,6 +7,7 @@ node{
     stage('Build'){
         sh "${mavenhome}/bin/mvn clean package"
     }
+    /*
     stage('Executesonarreport'){
         sh "${mavenhome}/bin/mvn clean package sonar:sonar"
     }
@@ -25,4 +26,5 @@ stage('Sendemail'){
     emailext body: 'build', subject: 'build', to: 'mahitha2899@gmail.com'
     
 }
+*/
 }
